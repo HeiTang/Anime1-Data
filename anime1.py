@@ -18,7 +18,7 @@ headers = {
 
 def main():
     r = requests.get("https://anime1.me/", headers = headers)
-    soup = BeautifulSoup(r.text, 'lxml') 
+    soup = BeautifulSoup(r.text, 'html.parser') 
     ele_tb = soup.find('tbody')
     ele_tr = ele_tb.find_all('tr')
     for anime in ele_tr:
