@@ -17,19 +17,19 @@ headers = {
 }
 
 def main():
-    r = requests.get("https://anime1.me/", headers = headers)
-    soup = BeautifulSoup(r.text, 'html.parser') 
-    ele_tb = soup.find('tbody')
-    ele_tr = ele_tb.find_all('tr')
-    for anime in ele_tr:
-        ani_name = anime.find('a').text
+    # r = requests.get("https://anime1.me/", headers = headers)
+    r = requests.get("https://d1zquzjgwo9yb.cloudfront.net")
+    ani_cloudfront = json.loads(r.text)
+
+    for i in range(len(ani_cloudfront)):
+        ani_name = ani_cloudfront[i][1]
         data = {
-            '動畫名稱': ani_name,
-            'ID': anime.find('a')['href'][6:],
-            '集數': anime.find('td', class_='column-2').text,
-            '年份': anime.find('td', class_='column-3').text, 
-            '季節': anime.find('td', class_='column-4').text, 
-            '字幕組': anime.find('td', class_='column-5').text
+            '動畫名稱': ani_cloudfront[i][1],
+            'ID': ani_cloudfront[i][0],
+            '集數': ani_cloudfront[i][2],
+            '年份': ani_cloudfront[i][3], 
+            '季節': ani_cloudfront[i][4], 
+            '字幕組': ani_cloudfront[i][5]
         }
         dict[ani_name] = data
 
