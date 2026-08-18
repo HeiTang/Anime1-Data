@@ -2,10 +2,11 @@ name: Python CI
 on:
   schedule:
     - cron:  '0 21 * * *'
-    
+  workflow_dispatch:
+
 jobs:
   build:
-    runs-on: ubuntu-latest			
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
     - name: Set up Python 3.x
