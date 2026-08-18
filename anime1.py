@@ -17,21 +17,32 @@ headers = {
 }
 
 def main():
-    # r = requests.get("https://anime1.me/", headers = headers)
-    r = requests.get("https://d1zquzjgwo9yb.cloudfront.net")
-    ani_cloudfront = json.loads(r.text)
+    r = requests.get("https://anime1.me/animelist.json", headers = headers)
+    r.raise_for_status()
+    anime_list = json.loads(r.text)
 
-    for i in range(len(ani_cloudfront)):
-        ani_name = ani_cloudfront[i][1]
+    for i in range(len(anime_list)):
+        anime_id = anime_list[i][0]
+        anime_name = anime_list[i][1]
+
+        # ID 為 0 代表 anime1.pw 條目，名稱欄位存的是 <a> 標籤，
+        # 且其 cat 編號會與 anime1.me 的 ID 撞號，故加上前綴區隔
+        if anime_id:
+            key = anime_id
+        else:
+            link = BeautifulSoup(anime_name, 'html.parser').a
+            anime_name = link.text
+            key = f"pw{link['href'].split('cat=')[1]}"
+
         data = {
-            '動畫名稱': ani_cloudfront[i][1],
-            'ID': ani_cloudfront[i][0],
-            '集數': ani_cloudfront[i][2],
-            '年份': ani_cloudfront[i][3], 
-            '季節': ani_cloudfront[i][4], 
-            '字幕組': ani_cloudfront[i][5]
+            '動畫名稱': anime_name,
+            'ID': anime_id,
+            '集數': anime_list[i][2],
+            '年份': anime_list[i][3], 
+            '季節': anime_list[i][4], 
+            '字幕組': anime_list[i][5]
         }
-        dict[ani_name] = data
+        dict[key] = data
 
 if __name__ == '__main__':
     dict = {}
