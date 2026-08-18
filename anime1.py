@@ -22,16 +22,27 @@ def main():
     anime_list = json.loads(r.text)
 
     for i in range(len(anime_list)):
-        ani_name = anime_list[i][1]
+        anime_id = anime_list[i][0]
+        anime_name = anime_list[i][1]
+
+        # ID 為 0 代表 anime1.pw 條目，名稱欄位存的是 <a> 標籤，
+        # 且其 cat 編號會與 anime1.me 的 ID 撞號，故加上前綴區隔
+        if anime_id:
+            key = anime_id
+        else:
+            link = BeautifulSoup(anime_name, 'html.parser').a
+            anime_name = link.text
+            key = f"pw{link['href'].split('cat=')[1]}"
+
         data = {
-            '動畫名稱': anime_list[i][1],
-            'ID': anime_list[i][0],
+            '動畫名稱': anime_name,
+            'ID': anime_id,
             '集數': anime_list[i][2],
             '年份': anime_list[i][3], 
             '季節': anime_list[i][4], 
             '字幕組': anime_list[i][5]
         }
-        dict[ani_name] = data
+        dict[key] = data
 
 if __name__ == '__main__':
     dict = {}
