@@ -17,19 +17,19 @@ headers = {
 }
 
 def main():
-    # r = requests.get("https://anime1.me/", headers = headers)
-    r = requests.get("https://d1zquzjgwo9yb.cloudfront.net")
-    ani_cloudfront = json.loads(r.text)
+    r = requests.get("https://anime1.me/animelist.json", headers = headers)
+    r.raise_for_status()
+    anime_list = json.loads(r.text)
 
-    for i in range(len(ani_cloudfront)):
-        ani_name = ani_cloudfront[i][1]
+    for i in range(len(anime_list)):
+        ani_name = anime_list[i][1]
         data = {
-            '動畫名稱': ani_cloudfront[i][1],
-            'ID': ani_cloudfront[i][0],
-            '集數': ani_cloudfront[i][2],
-            '年份': ani_cloudfront[i][3], 
-            '季節': ani_cloudfront[i][4], 
-            '字幕組': ani_cloudfront[i][5]
+            '動畫名稱': anime_list[i][1],
+            'ID': anime_list[i][0],
+            '集數': anime_list[i][2],
+            '年份': anime_list[i][3], 
+            '季節': anime_list[i][4], 
+            '字幕組': anime_list[i][5]
         }
         dict[ani_name] = data
 
