@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import requests, json
 import pandas as pd
+from time import sleep
 
 # 設定 Header 
 headers = {
@@ -16,10 +17,33 @@ headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3573.0 Safari/537.36",
 }
 
+ANIME_LIST_URL = "https://anime1.me/animelist.json"
+REQUEST_TIMEOUT = (5, 30)
+RETRY_DELAYS = (1, 2)
+TRANSIENT_STATUS_CODES = {500, 502, 503, 504, 521, 522, 523, 524}
+
+
+def fetch_anime_list():
+    for attempt in range(len(RETRY_DELAYS) + 1):
+        try:
+            response = requests.get(ANIME_LIST_URL, headers=headers, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
+        except requests.exceptions.SSLError:
+            raise
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            if attempt == len(RETRY_DELAYS):
+                raise
+        except requests.exceptions.HTTPError as error:
+            if (attempt == len(RETRY_DELAYS) or error.response is None
+                    or error.response.status_code not in TRANSIENT_STATUS_CODES):
+                raise
+        else:
+            return json.loads(response.text)
+        sleep(RETRY_DELAYS[attempt])
+
+
 def main():
-    r = requests.get("https://anime1.me/animelist.json", headers = headers)
-    r.raise_for_status()
-    anime_list = json.loads(r.text)
+    anime_list = fetch_anime_list()
 
     for i in range(len(anime_list)):
         anime_id = anime_list[i][0]
@@ -57,7 +81,3 @@ if __name__ == '__main__':
     # .CSV
     df = pd.json_normalize(dict.values())
     df.to_csv("Anime1 List.csv", index = False)
-
-
-
-    
